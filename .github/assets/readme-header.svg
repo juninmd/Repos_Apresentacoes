@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="640" viewBox="0 0 1280 640" role="img" aria-labelledby="t">
+  <title id="t">Repos_Apresentacoes: cinco apresentações em PowerPoint sobre desenvolvimento híbrido, Global Azure e PWA, PWA, API de votação e Rust</title>
+  <rect width="1280" height="640" rx="24" fill="#0f172a"/>
+  <g font-family="system-ui, -apple-system, Segoe UI, sans-serif">
+    <text x="80" y="170" fill="#f8fafc" font-size="64" font-weight="700">Repos_Apresentacoes</text>
+    <text x="80" y="230" fill="#94a3b8" font-size="32">Slides e recursos de palestras técnicas</text>
+    <g font-size="30">
+      <rect x="80" y="290" width="1120" height="52" rx="12" fill="#1e293b"/>
+      <text x="104" y="327" fill="#f8fafc">apresentacao-desenvolvimento-hibrido</text>
+      <text x="1176" y="327" fill="#38bdf8" text-anchor="end">.pptx</text>
+      <rect x="80" y="352" width="1120" height="52" rx="12" fill="#1e293b"/>
+      <text x="104" y="389" fill="#f8fafc">apresentacao-global-azure-pwa</text>
+      <text x="1176" y="389" fill="#38bdf8" text-anchor="end">.pptx</text>
+      <rect x="80" y="414" width="1120" height="52" rx="12" fill="#1e293b"/>
+      <text x="104" y="451" fill="#f8fafc">apresentacao-pwa</text>
+      <text x="1176" y="451" fill="#38bdf8" text-anchor="end">.pptx</text>
+      <rect x="80" y="476" width="1120" height="52" rx="12" fill="#1e293b"/>
+      <text x="104" y="513" fill="#f8fafc">apresentacao-pwa-api</text>
+      <text x="1176" y="513" fill="#4ade80" text-anchor="end">app.js</text>
+      <rect x="80" y="538" width="1120" height="52" rx="12" fill="#1e293b"/>
+      <text x="104" y="575" fill="#f8fafc">apresentacao-rust-lang</text>
+      <text x="1176" y="575" fill="#38bdf8" text-anchor="end">.pptx</text>
+    </g>
+  </g>
+</svg>
