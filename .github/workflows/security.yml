@@ -1,8 +1,17 @@
-﻿name: Security Scan
+name: Security Scan
 
 on:
   push:
     branches: [main, master]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: security-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   gitleaks:
-    uses: juninmd/base-actions/.github/workflows/reusable-security-scan.yml@main
+    uses: juninmd/base-actions/.github/workflows/reusable-security-scan.yml@b1a957daf1a734fdfe18b28f984e85b3c471f4d4 # main
