@@ -1,0 +1,25 @@
+name: Test API
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+          cache-dependency-path: apresentacao-pwa-api/package-lock.json
+
+      - name: Install dependencies and run tests
+        run: |
+          cd apresentacao-pwa-api
+          npm ci
+          npm test
