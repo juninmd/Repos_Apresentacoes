@@ -64,24 +64,20 @@ describe('PWA Fatec API', () => {
         expect(getRes.body).toEqual([]);
     });
 
-    test('README documenta as rotas GET /vote e POST /vote que existem no app', () => {
+    test('README documenta as rotas GET /vote e POST /vote que existem no app', async () => {
         const readmePath = path.join(__dirname, '..', '..', 'README.md');
         const readmeContent = fs.readFileSync(readmePath, 'utf-8');
 
         expect(readmeContent).toContain('POST /vote');
         expect(readmeContent).toContain('GET /vote');
 
-        const routes = app._router.stack
-            .filter(r => r.route)
-            .map(r => ({
-                path: r.route.path,
-                methods: Object.keys(r.route.methods)
-            }));
+        // Prova as rotas pelo comportamento HTTP, nao pela arvore interna do
+        // Express: `app._router` deixou de existir no Express 5, entao ler
+        // `_router.stack` quebrava o teste em qualquer upgrade de major.
+        const postRes = await request(app).post('/vote').send({ id: 1 });
+        const getRes = await request(app).get('/vote');
 
-        const hasPostVote = routes.some(r => r.path === '/vote' && r.methods.includes('post'));
-        const hasGetVote = routes.some(r => r.path === '/vote' && r.methods.includes('get'));
-
-        expect(hasPostVote).toBe(true);
-        expect(hasGetVote).toBe(true);
+        expect(postRes.status).toBe(200);
+        expect(getRes.status).toBe(200);
     });
 });
