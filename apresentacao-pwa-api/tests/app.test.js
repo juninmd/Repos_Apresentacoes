@@ -43,6 +43,26 @@ describe('PWA Fatec API', () => {
         expect(res.body).toEqual({ message: 'Opção inválida.' });
     });
 
+    test.each([1.5, true, [2], null, 0, -1, 7, {}])('POST /vote com id %p -> 400 e nao grava voto', async (id) => {
+        const res = await request(app)
+            .post('/vote')
+            .send({ id });
+
+        expect(res.status).toBe(400);
+        expect(res.body).toEqual({ message: 'Opção inválida.' });
+
+        const getRes = await request(app).get('/vote');
+        expect(getRes.body).toEqual([]);
+    });
+
+    test('POST /vote com id numérico em string ("2") conta como a opção 2', async () => {
+        await request(app).post('/vote').send({ id: '2' });
+        await request(app).post('/vote').send({ id: 2 });
+
+        const getRes = await request(app).get('/vote');
+        expect(getRes.body).toEqual([{ id: 2, votes: 2 }]);
+    });
+
     test('dois votos na mesma opção somam 2', async () => {
         await request(app).post('/vote').send({ id: 2 });
         await request(app).post('/vote').send({ id: 2 });
