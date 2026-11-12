@@ -1,11 +1,11 @@
 <div align="center">
 
-<img src=".github/assets/readme-header.svg" alt="Cinco pastas de apresentações: desenvolvimento híbrido, Global Azure e PWA, PWA, API de votação do PWA e Rust, cada uma com seu arquivo .pptx ou app.js" width="860" />
+<img src=".github/assets/readme-header.svg" alt="Seis pastas de apresentações: desenvolvimento híbrido, Global Azure e PWA, PWA, API de votação do PWA e Rust, cada uma com seu arquivo .pptx ou app.js" width="860" />
 
 # Repositórios de Apresentações
 
 **Coleção de repositórios de slides e apresentações.**<br/>
-Cinco pastas independentes com os slides em PowerPoint, as imagens usadas e, no caso do PWA, a API de votação da demo.
+Seis pastas independentes com os slides em PowerPoint, as imagens usadas e, no caso do PWA, a API de votação da demo.
 
 [![Validate](https://img.shields.io/github/actions/workflow/status/juninmd/Repos_Apresentacoes/validate.yml?branch=master&style=flat-square&label=validate)](https://github.com/juninmd/Repos_Apresentacoes/actions/workflows/validate.yml)
 [![License](https://img.shields.io/github/license/juninmd/Repos_Apresentacoes?style=flat-square)](#licença)
@@ -28,6 +28,7 @@ Cada subpasta é um projeto de apresentação independente, com README próprio.
 | [`apresentacao-pwa-api/`](apresentacao-pwa-api) | API para PWA | `app.js` (Express), `Procfile`, `package.json` | sem slides, só código |
 | [`apresentacao-pwa/`](apresentacao-pwa) | Progressive Web Apps | `apresentacao.pptx`, imagens em `imagens/` | 33 MB |
 | [`apresentacao-rust-lang/`](apresentacao-rust-lang) | Linguagem Rust | `slide.pptx`, logo em `recursos/` | 120 KB |
+| [`apresentacao-ecmascript-2019/`](apresentacao-ecmascript-2019) | ECMAScript 2019 | `ECMAScript 2019.pptx` | 32 MB |
 
 ## Formato
 
@@ -44,6 +45,7 @@ flowchart LR
   R --> G[apresentacao-global-azure-pwa/apresentacao.pptx]
   R --> P[apresentacao-pwa/apresentacao.pptx]
   R --> RU[apresentacao-rust-lang/slide.pptx]
+  R --> E[apresentacao-ecmascript-2019/ECMAScript 2019.pptx]
   R --> A[apresentacao-pwa-api/app.js]
   P -.->|linka no README| APP[juninmd/pwa-fatec-app]
   P -.->|linka no README| A

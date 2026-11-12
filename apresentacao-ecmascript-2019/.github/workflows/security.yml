@@ -1,0 +1,7 @@
+﻿name: Security Scan
+on:
+  push:
+    branches: [main, master]
+jobs:
+  gitleaks:
+    uses: juninmd/base-actions/.github/workflows/reusable-security-scan.yml@main
