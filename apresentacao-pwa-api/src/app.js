@@ -11,13 +11,29 @@ function normalizeId(raw) {
     return typeof raw === 'number' ? raw : NaN;
 }
 
+// Um voto cabe em poucos bytes; 500mb deixava qualquer cliente estourar a memória do processo.
+const BODY_LIMIT = '1kb';
+
+function readStore(storePath) {
+    if (!fs.existsSync(storePath)) {
+        return {};
+    }
+    try {
+        return JSON.parse(fs.readFileSync(storePath).toString());
+    } catch {
+        const error = new Error('Armazenamento de votos corrompido; chame GET /reset para recriá-lo.');
+        error.status = 500;
+        throw error;
+    }
+}
+
 function createApp(options = {}) {
     const storePath = options.storePath || 'vote.txt';
     const app = express();
 
     app.use(cors());
-    app.use(bodyParser.json({ limit: '500mb' }));
-    app.use(bodyParser.urlencoded({ limit: '500mb', extended: true }));
+    app.use(bodyParser.json({ limit: BODY_LIMIT }));
+    app.use(bodyParser.urlencoded({ limit: BODY_LIMIT, extended: true }));
 
     app.post('/vote', (req, res) => {
         const id = normalizeId(req.body && req.body.id);
@@ -25,11 +41,7 @@ function createApp(options = {}) {
             return res.status(400).send({ message: 'Opção inválida.' });
         }
 
-        let json = {};
-
-        if (fs.existsSync(storePath)) {
-            json = JSON.parse(fs.readFileSync(storePath).toString());
-        }
+        const json = readStore(storePath);
 
         if (json[`u${id}`] === undefined) {
             json[`u${id}`] = {
@@ -46,12 +58,7 @@ function createApp(options = {}) {
     });
 
     app.get('/vote', (req, res) => {
-        let json = {};
-
-        if (fs.existsSync(storePath)) {
-            json = JSON.parse(fs.readFileSync(storePath).toString());
-        }
-
+        const json = readStore(storePath);
         const result = Object.values(json);
         return res.send(result);
     });
@@ -61,6 +68,14 @@ function createApp(options = {}) {
             fs.unlinkSync(storePath);
         }
         return res.send({ status: 'ok' });
+    });
+
+    // Erros do body-parser (JSON inválido, corpo grande demais) e do armazenamento viram JSON, não HTML.
+    // eslint-disable-next-line no-unused-vars
+    app.use((err, req, res, next) => {
+        const status = err.status || err.statusCode || 500;
+        const message = status === 413 ? 'Corpo da requisição grande demais.' : err.message;
+        return res.status(status).send({ message });
     });
 
     return app;

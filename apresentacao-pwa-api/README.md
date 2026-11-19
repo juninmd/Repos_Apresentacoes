@@ -1,22 +1,31 @@
-```markdown
 # apresentacao-pwa-api
 
-## Description
+API de votação usada na demo da apresentação de PWA (`../apresentacao-pwa`). Express 5, sem banco: os votos ficam em `vote.txt`.
 
-A standard software project.
+## Como rodar
 
-## Installation
+Requer Node.js 22.
 
-1.  Clone the repository: `git clone https://github.com/your-username/apresentacao-pwa-api.git`
-2.  Navigate to the project directory: `cd apresentacao-pwa-api`
-3.  Install dependencies: `npm install` or `yarn install` (if using yarn).
-
-## Usage
-
-1.  **App.js:** This file defines the core functionality of the application.  It likely handles user input, data processing, and rendering.
-2.  **package.json:**  Defines the project's metadata, dependencies, and scripts (e.g., `start`, `test`).
-3.  **yarn.lock:**  A lock file for managing the project's dependencies.
-4.  **Procfile:** Specifies how the application should be started (e.g., `node app.js`).
-
-To run the application, execute: `npm start` or `yarn start`.
+```bash
+npm install
+npm start      # http://localhost:8050 (ou PORT)
+npm test       # jest + supertest
 ```
+
+## Rotas
+
+| Rota | Efeito |
+|---|---|
+| `POST /vote` com `{"id": 1..6}` | soma um voto; `id` inválido retorna 400 `Opção inválida.` |
+| `GET /vote` | lista as opções votadas (`id`, `votes`) |
+| `GET /reset` | apaga os votos |
+
+Corpo da requisição limitado a 1 kb (413 acima disso). Se `vote.txt` estiver corrompido, `POST`/`GET /vote` respondem 500 e `GET /reset` recria o armazenamento.
+
+## Estrutura
+
+- `server.js`: sobe o servidor (`PORT`, padrão 8050); o `Procfile` aponta para ele.
+- `src/app.js`: `createApp({ storePath })`, usado também pelos testes.
+- `tests/app.test.js`: testes das rotas.
+
+> Sem autenticação e com `GET /reset` aberto: só para demonstração, não para produção.
