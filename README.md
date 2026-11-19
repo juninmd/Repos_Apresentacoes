@@ -25,7 +25,7 @@ Cada subpasta é um projeto de apresentação independente, com README próprio.
 |-------|------|--------------------|--------------------|
 | [`apresentacao-desenvolvimento-hibrido/`](apresentacao-desenvolvimento-hibrido) | Desenvolvimento Híbrido (Ionic) | `slide.pptx`, imagens em `Recursos/` | 39 MB |
 | [`apresentacao-global-azure-pwa/`](apresentacao-global-azure-pwa) | Global Azure + PWA | `apresentacao.pptx`, imagens em `imagens/` | 60 MB |
-| [`apresentacao-pwa-api/`](apresentacao-pwa-api) | API para PWA | `app.js` (Express), `Procfile`, `package.json` | sem slides, só código |
+| [`apresentacao-pwa-api/`](apresentacao-pwa-api) | API para PWA | `server.js` e `src/app.js` (Express), testes em `tests/`, `Procfile` | sem slides, só código |
 | [`apresentacao-pwa/`](apresentacao-pwa) | Progressive Web Apps | `apresentacao.pptx`, imagens em `imagens/` | 33 MB |
 | [`apresentacao-rust-lang/`](apresentacao-rust-lang) | Linguagem Rust | `slide.pptx`, logo em `recursos/` | 120 KB |
 | [`apresentacao-ecmascript-2019/`](apresentacao-ecmascript-2019) | ECMAScript 2019 | `ECMAScript 2019.pptx` | 32 MB |
@@ -55,7 +55,7 @@ O README de `apresentacao-pwa` aponta para o código do aplicativo de demonstra�
 
 ## API de votação
 
-Única pasta com código executável. Requer Node.js e npm; as dependências são `express`, `cors` e `body-parser`.
+Única pasta com código executável (detalhes no [README da API](apresentacao-pwa-api/README.md)). Requer Node.js e npm; as dependências são `express`, `cors` e `body-parser`. `npm test` roda a suíte (jest + supertest).
 
 ```sh
 cd apresentacao-pwa-api
@@ -83,8 +83,8 @@ Exemplo de resposta de `POST /vote` com `{"id":2}`, seguido de `GET /vote`:
 ## Limitações conhecidas
 
 - Os slides são binários `.pptx`: o GitHub não renderiza nem mostra diferenças entre versões.
-- A API de votação grava em `vote.txt` no diretório atual, não tem autenticação e expõe `GET /reset` a qualquer cliente. Serve só para demonstração, não para produção.
-- Os README das subpastas ainda são rascunhos genéricos, exceto o de `apresentacao-pwa`.
+- A API de votação limita o corpo a 1 kb, grava em `vote.txt` no diretório atual, não tem autenticação e expõe `GET /reset` a qualquer cliente. Serve só para demonstração, não para produção.
+- Os README das subpastas ainda são rascunhos genéricos, exceto os de `apresentacao-pwa` e `apresentacao-pwa-api`.
 
 ## Documentação
 

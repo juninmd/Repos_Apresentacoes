@@ -84,6 +84,36 @@ describe('PWA Fatec API', () => {
         expect(getRes.body).toEqual([]);
     });
 
+    test('corpo acima do limite -> 413 em JSON, sem gravar voto', async () => {
+        const res = await request(app)
+            .post('/vote')
+            .send({ id: 2, lixo: 'x'.repeat(5000) });
+
+        expect(res.status).toBe(413);
+        expect(res.body).toEqual({ message: 'Corpo da requisição grande demais.' });
+        expect((await request(app).get('/vote')).body).toEqual([]);
+    });
+
+    test('vote.txt corrompido -> 500 em JSON, preservado até o /reset', async () => {
+        fs.writeFileSync(storePath, '{nao-e-json');
+
+        const post = await request(app).post('/vote').send({ id: 1 });
+        expect(post.status).toBe(500);
+        expect(post.body.message).toMatch(/corrompido/);
+        expect(fs.readFileSync(storePath, 'utf8')).toBe('{nao-e-json');
+
+        expect((await request(app).get('/vote')).status).toBe(500);
+
+        await request(app).get('/reset');
+        expect((await request(app).post('/vote').send({ id: 1 })).status).toBe(200);
+    });
+
+    test('JSON inválido no corpo -> 400 em JSON', async () => {
+        const res = await request(app).post('/vote').set('Content-Type', 'application/json').send('{oops');
+        expect(res.status).toBe(400);
+        expect(typeof res.body.message).toBe('string');
+    });
+
     test('README documenta as rotas GET /vote e POST /vote que existem no app', async () => {
         const readmePath = path.join(__dirname, '..', '..', 'README.md');
         const readmeContent = fs.readFileSync(readmePath, 'utf-8');
