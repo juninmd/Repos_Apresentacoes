@@ -27,6 +27,18 @@ function readStore(storePath) {
     }
 }
 
+// Write to a sibling file and rename: a crash mid-write must not leave a truncated store behind.
+function writeStore(storePath, json) {
+    const tmpPath = `${storePath}.${process.pid}.tmp`;
+    try {
+        fs.writeFileSync(tmpPath, JSON.stringify(json));
+        fs.renameSync(tmpPath, storePath);
+    } catch (err) {
+        fs.rmSync(tmpPath, { force: true });
+        throw err;
+    }
+}
+
 function createApp(options = {}) {
     const storePath = options.storePath || 'vote.txt';
     const app = express();
@@ -52,7 +64,7 @@ function createApp(options = {}) {
 
         json[`u${id}`].votes = json[`u${id}`].votes + 1;
 
-        fs.writeFileSync(storePath, JSON.stringify(json));
+        writeStore(storePath, json);
 
         return res.status(200).send({ message: 'Seu voto foi computado com sucesso.' });
     });
