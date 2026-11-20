@@ -130,4 +130,22 @@ describe('PWA Fatec API', () => {
         expect(postRes.status).toBe(200);
         expect(getRes.status).toBe(200);
     });
+
+    test('falha ao gravar não corrompe os votos já salvos', async () => {
+        await request(app).post('/vote').send({ id: 2 });
+
+        const realWrite = fs.writeFileSync;
+        const spy = jest.spyOn(fs, 'writeFileSync').mockImplementation((file, data) => {
+            realWrite(file, String(data).slice(0, 3)); // simula queda no meio da escrita
+            throw new Error('disco cheio');
+        });
+        const failed = await request(app).post('/vote').send({ id: 2 });
+        spy.mockRestore();
+
+        expect(failed.status).toBe(500);
+        const getRes = await request(app).get('/vote');
+        expect(getRes.status).toBe(200);
+        expect(getRes.body).toEqual([{ id: 2, votes: 1 }]);
+        expect(fs.readdirSync(tmpDir)).toEqual(['vote.txt']);
+    });
 });
