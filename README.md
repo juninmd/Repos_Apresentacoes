@@ -67,7 +67,7 @@ npm start       # sobe a API em http://localhost:8050 (ou na porta de PORT)
 |------|--------|
 | `POST /vote` com `{"id": 1..6}` | soma um voto à opção; outro `id` retorna 400 `Opção inválida.` |
 | `GET /vote` | lista as opções com `id` e `votes` |
-| `GET /reset` | apaga os votos |
+| `POST /reset` com `Authorization: Bearer $ADMIN_TOKEN` | apaga os votos (`GET /reset` responde 405) |
 
 Exemplo de resposta de `POST /vote` com `{"id":2}`, seguido de `GET /vote`:
 
@@ -79,11 +79,12 @@ Exemplo de resposta de `POST /vote` com `{"id":2}`, seguido de `GET /vote`:
 | Variável | Propósito | Padrão | Exemplo |
 |----------|-----------|--------|---------|
 | `PORT` | porta HTTP | `8050` | `8051` |
+| `ADMIN_TOKEN` | token exigido por `POST /reset`; sem ele o reset fica desabilitado (503) | vazio | `openssl rand -hex 32` |
 
 ## Limitações conhecidas
 
 - Os slides são binários `.pptx`: o GitHub não renderiza nem mostra diferenças entre versões.
-- A API de votação limita o corpo a 1 kb, grava em `vote.txt` no diretório atual, não tem autenticação e expõe `GET /reset` a qualquer cliente. Serve só para demonstração, não para produção.
+- A API de votação limita o corpo a 1 kb, grava em `vote.txt` no diretório atual, não autentica a votação e só permite `POST /reset` com `ADMIN_TOKEN`. Serve só para demonstração, não para produção.
 - Os README das subpastas ainda são rascunhos genéricos, exceto os de `apresentacao-pwa` e `apresentacao-pwa-api`.
 
 ## Documentação
