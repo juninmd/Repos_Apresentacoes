@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const fs = require('fs');
+const crypto = require('crypto');
 
 // Aceita o inteiro JSON ou uma string só com dígitos (ex.: "2"); qualquer outra coisa vira NaN.
 function normalizeId(raw) {
@@ -21,7 +22,7 @@ function readStore(storePath) {
     try {
         return JSON.parse(fs.readFileSync(storePath).toString());
     } catch {
-        const error = new Error('Armazenamento de votos corrompido; chame GET /reset para recriá-lo.');
+        const error = new Error('Armazenamento de votos corrompido; chame POST /reset (com ADMIN_TOKEN) para recriá-lo.');
         error.status = 500;
         throw error;
     }
@@ -39,11 +40,32 @@ function writeStore(storePath, json) {
     }
 }
 
+// Hash both sides so timingSafeEqual never throws on different lengths.
+function tokenMatches(given, expected) {
+    const digest = (v) => crypto.createHash('sha256').update(v).digest();
+    return crypto.timingSafeEqual(digest(given), digest(expected));
+}
+
+function requireAdmin(adminToken) {
+    return (req, res, next) => {
+        if (!adminToken) {
+            return res.status(503).send({ message: 'Reset desabilitado: defina ADMIN_TOKEN.' });
+        }
+        const [scheme, token] = (req.get('authorization') || '').split(' ');
+        if (scheme !== 'Bearer' || !token || !tokenMatches(token, adminToken)) {
+            return res.status(401).send({ message: 'Não autorizado.' });
+        }
+        return next();
+    };
+}
+
 function createApp(options = {}) {
     const storePath = options.storePath || 'vote.txt';
+    const adminToken = options.adminToken ?? process.env.ADMIN_TOKEN;
     const app = express();
 
-    app.use(cors());
+    // CORS só na votação pública; o reset administrativo não aceita chamadas de outras origens.
+    app.use('/vote', cors());
     app.use(bodyParser.json({ limit: BODY_LIMIT }));
     app.use(bodyParser.urlencoded({ limit: BODY_LIMIT, extended: true }));
 
@@ -75,7 +97,10 @@ function createApp(options = {}) {
         return res.send(result);
     });
 
-    app.get('/reset', (req, res) => {
+    // GET destrutivo podia ser disparado por qualquer link ou <img>; agora é POST autenticado.
+    app.get('/reset', (req, res) => res.status(405).set('Allow', 'POST').send({ message: 'Use POST /reset com Authorization: Bearer <ADMIN_TOKEN>.' }));
+
+    app.post('/reset', requireAdmin(adminToken), (req, res) => {
         if (fs.existsSync(storePath)) {
             fs.unlinkSync(storePath);
         }

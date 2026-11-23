@@ -4,6 +4,8 @@ const path = require('path');
 const os = require('os');
 const { createApp } = require('../src/app');
 
+const TOKEN = 'test-admin-token';
+
 describe('PWA Fatec API', () => {
     let tmpDir;
     let storePath;
@@ -12,7 +14,7 @@ describe('PWA Fatec API', () => {
     beforeEach(() => {
         tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'pwa-api-test-'));
         storePath = path.join(tmpDir, 'vote.txt');
-        app = createApp({ storePath });
+        app = createApp({ storePath, adminToken: TOKEN });
     });
 
     afterEach(() => {
@@ -72,10 +74,35 @@ describe('PWA Fatec API', () => {
         expect(getRes.body).toEqual([{ id: 2, votes: 2 }]);
     });
 
-    test('GET /reset apaga os votos', async () => {
+    test('GET /reset não apaga nada (405)', async () => {
+        await request(app).post('/vote').send({ id: 2 });
+        const res = await request(app).get('/reset');
+        expect(res.status).toBe(405);
+        expect(res.headers.allow).toBe('POST');
+        expect((await request(app).get('/vote')).body).toEqual([{ id: 2, votes: 1 }]);
+    });
+
+    test('POST /reset sem token ou com token errado -> 401, votos preservados', async () => {
+        await request(app).post('/vote').send({ id: 2 });
+        expect((await request(app).post('/reset')).status).toBe(401);
+        expect((await request(app).post('/reset').set('Authorization', 'Bearer errado')).status).toBe(401);
+        expect((await request(app).get('/vote')).body).toEqual([{ id: 2, votes: 1 }]);
+    });
+
+    test('POST /reset sem ADMIN_TOKEN configurado -> 503', async () => {
+        const open = createApp({ storePath, adminToken: '' });
+        expect((await request(open).post('/reset').set('Authorization', 'Bearer x')).status).toBe(503);
+    });
+
+    test('POST /reset não expõe CORS', async () => {
+        const res = await request(app).post('/reset').set('Origin', 'https://evil.example');
+        expect(res.headers['access-control-allow-origin']).toBeUndefined();
+    });
+
+    test('POST /reset com token apaga os votos', async () => {
         await request(app).post('/vote').send({ id: 2 });
 
-        const resetRes = await request(app).get('/reset');
+        const resetRes = await request(app).post('/reset').set('Authorization', `Bearer ${TOKEN}`);
         expect(resetRes.status).toBe(200);
         expect(resetRes.body).toEqual({ status: 'ok' });
 
@@ -104,7 +131,7 @@ describe('PWA Fatec API', () => {
 
         expect((await request(app).get('/vote')).status).toBe(500);
 
-        await request(app).get('/reset');
+        await request(app).post('/reset').set('Authorization', `Bearer ${TOKEN}`);
         expect((await request(app).post('/vote').send({ id: 1 })).status).toBe(200);
     });
 
